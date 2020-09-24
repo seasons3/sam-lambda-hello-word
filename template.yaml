@@ -11,6 +11,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: hello-world/
+      FunctionName: hello-world
       Handler: app.lambdaHandler
       Runtime: nodejs12.x
       Events:
