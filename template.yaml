@@ -1,0 +1,77 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Hello world app for AWS SAM
+
+Globals:
+  Function:
+    Timeout: 3
+
+Resources:
+  HelloWorldFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: hello-world/
+      Handler: app.lambdaHandler
+      Runtime: nodejs12.x
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /hello
+            Method: get
+
+  AddNameFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: hello-world/
+      Handler: app.addName
+      Runtime: nodejs8.10
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: Names
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /add-name
+            Method: post
+
+  GreetNamesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: hello-world/
+      Handler: app.greetNames
+      Runtime: nodejs8.10
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: Names
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /greet-names
+            Method: get
+    
+  NamesTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      TableName: Names
+      PrimaryKey:
+        Name: id
+        Type: String
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      SSESpecification:
+        SSEEnabled: true
+
+Outputs:
+  HelloWorldApi:
+    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
+  GreetNamesApi:
+    Description: "API Gateway endpoint URL for Prod stage for Greet Names function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/greet-names/"
+  AddNameApi:
+    Description: "API Gateway endpoint URL for Prod stage for Greet Names function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/add-name/"
